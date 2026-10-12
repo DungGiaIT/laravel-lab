@@ -1,0 +1,808 @@
+{
+  "info": {
+    "name": "Coffee Shop API v1",
+    "description": "CRUD, validation, pagination, search, relation loading, and price sorting checks for the Laravel lab API.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "root_url",
+      "value": "http://127.0.0.1:8000"
+    },
+    {
+      "key": "base_url",
+      "value": "http://127.0.0.1:8000/api/v1"
+    }
+  ],
+  "item": [
+    {
+      "name": "Categories - list",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('returns category collection', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().data).to.be.an('array');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/categories"
+      }
+    },
+    {
+      "name": "Categories - page 2",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('paginates to page 2', function () {",
+              "    const body = pm.response.json();",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(body.current_page).to.eql(2);",
+              "    pm.expect(body.data.length).to.be.greaterThan(0);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/categories?page=2"
+      }
+    },
+    {
+      "name": "Categories - search",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('search matches category names', function () {",
+              "    const body = pm.response.json();",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(body.data.length).to.be.greaterThan(0);",
+              "    pm.expect(body.data.every(function (item) { return item.name.toLowerCase().includes('cafe'); })).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/categories?search=Cafe"
+      }
+    },
+    {
+      "name": "Categories - create",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('creates a category', function () {",
+              "    pm.response.to.have.status(201);",
+              "    pm.collectionVariables.set('categoryId', pm.response.json().id);",
+              "    pm.expect(pm.response.json().name).to.include('Postman Category');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Category {{$guid}}\",\n  \"description\": \"Created by the Postman collection\"\n}"
+        },
+        "url": "{{base_url}}/categories"
+      }
+    },
+    {
+      "name": "Categories - show",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('shows the created category', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().id).to.eql(Number(pm.collectionVariables.get('categoryId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/categories/{{categoryId}}"
+      }
+    },
+    {
+      "name": "Categories - patch",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('patches a category', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().description).to.eql('Patched by Postman');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"description\": \"Patched by Postman\"\n}"
+        },
+        "url": "{{base_url}}/categories/{{categoryId}}"
+      }
+    },
+    {
+      "name": "Categories - put",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('updates a category with PUT', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().name).to.include('Postman Updated Category');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Updated Category {{$guid}}\",\n  \"description\": \"Updated by Postman\"\n}"
+        },
+        "url": "{{base_url}}/categories/{{categoryId}}"
+      }
+    },
+    {
+      "name": "Categories - duplicate update rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('rejects a duplicate category name on update', function () {",
+              "    pm.response.to.have.status(422);",
+              "    pm.expect(pm.response.json().errors).to.have.property('name');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/categories/{{categoryId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Chicken\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Categories - validation error",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('rejects a duplicate category name', function () {",
+              "    pm.response.to.have.status(422);",
+              "    pm.expect(pm.response.json().errors).to.have.property('name');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cafe\",\n  \"description\": \"Duplicate name\"\n}"
+        },
+        "url": "{{base_url}}/categories"
+      }
+    },
+    {
+      "name": "Products - list with category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('lists products with their category', function () {",
+              "    const body = pm.response.json();",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(body.data.length).to.be.greaterThan(0);",
+              "    pm.expect(body.data[0].category).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products?with=category"
+      }
+    },
+    {
+      "name": "Products - search",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('search matches product names', function () {",
+              "    const body = pm.response.json();",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(body.data.length).to.be.greaterThan(0);",
+              "    pm.expect(body.data.every(function (item) { return item.name.toLowerCase().includes('cappuchino'); })).to.eql(true);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products?search=Cappuchino"
+      }
+    },
+    {
+      "name": "Products - sort price ascending",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('sorts prices ascending', function () {",
+              "    const prices = pm.response.json().data.map(function (item) { return Number(item.price); });",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(prices.length).to.be.greaterThan(0);",
+              "    pm.expect(prices).to.eql(prices.slice().sort(function (a, b) { return a - b; }));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products?sort=asc"
+      }
+    },
+    {
+      "name": "Products - sort price descending",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('sorts prices descending', function () {",
+              "    const prices = pm.response.json().data.map(function (item) { return Number(item.price); });",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(prices.length).to.be.greaterThan(0);",
+              "    pm.expect(prices).to.eql(prices.slice().sort(function (a, b) { return b - a; }));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products?sort=desc"
+      }
+    },
+    {
+      "name": "Products - invalid sort",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('rejects an invalid sort direction', function () {",
+              "    pm.response.to.have.status(422);",
+              "    pm.expect(pm.response.json().errors).to.have.property('sort');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products?sort=unexpected"
+      }
+    },
+    {
+      "name": "Products - create",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('creates a product', function () {",
+              "    pm.response.to.have.status(201);",
+              "    pm.collectionVariables.set('productId', pm.response.json().id);",
+              "    pm.expect(pm.response.json().category_id).to.eql(Number(pm.collectionVariables.get('categoryId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Product {{$guid}}\",\n  \"description\": \"Created by the Postman collection\",\n  \"price\": 12000,\n  \"currency\": \"VNĐ\",\n  \"display_image_url\": \"https://example.com/coffee.jpg\",\n  \"category_id\": {{categoryId}}\n}"
+        },
+        "url": "{{base_url}}/products"
+      }
+    },
+    {
+      "name": "Products - show without relation",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('shows a product without eager loading by default', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json()).to.not.have.property('category');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products/{{productId}}"
+      }
+    },
+    {
+      "name": "Products - show with category",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('shows the product and its category', function () {",
+              "    const body = pm.response.json();",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(body.id).to.eql(Number(pm.collectionVariables.get('productId')));",
+              "    pm.expect(body.category.id).to.eql(Number(pm.collectionVariables.get('categoryId')));",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products/{{productId}}?with=category"
+      }
+    },
+    {
+      "name": "Products - patch",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('patches a product', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(Number(pm.response.json().price)).to.eql(13000);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"price\": 13000\n}"
+        },
+        "url": "{{base_url}}/products/{{productId}}"
+      }
+    },
+    {
+      "name": "Products - put",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('updates a product with PUT', function () {",
+              "    pm.response.to.have.status(200);",
+              "    pm.expect(pm.response.json().name).to.include('Postman Updated Product');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Postman Updated Product {{$guid}}\",\n  \"description\": \"Updated through PUT\",\n  \"price\": 13000,\n  \"currency\": \"VNĐ\",\n  \"display_image_url\": \"https://example.com/coffee.jpg\",\n  \"category_id\": {{categoryId}}\n}"
+        },
+        "url": "{{base_url}}/products/{{productId}}"
+      }
+    },
+    {
+      "name": "Products - duplicate update rejected",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('rejects a duplicate product name on update', function () {",
+              "    pm.response.to.have.status(422);",
+              "    pm.expect(pm.response.json().errors).to.have.property('name');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PATCH",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products/{{productId}}",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Cappuchino\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Products - validation error",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('rejects an invalid product', function () {",
+              "    pm.response.to.have.status(422);",
+              "    pm.expect(pm.response.json().errors).to.be.an('object');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          },
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"\",\n  \"price\": -1,\n  \"category_id\": 999999\n}"
+        },
+        "url": "{{base_url}}/products"
+      }
+    },
+    {
+      "name": "Products - delete",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('deletes the product with no content', function () {",
+              "    pm.response.to.have.status(204);",
+              "    pm.expect(pm.response.text()).to.eql('');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products/{{productId}}"
+      }
+    },
+    {
+      "name": "Products - deleted resource is 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('returns not found after delete', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/products/{{productId}}"
+      }
+    },
+    {
+      "name": "Categories - delete",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('deletes the category with no content', function () {",
+              "    pm.response.to.have.status(204);",
+              "    pm.expect(pm.response.text()).to.eql('');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/categories/{{categoryId}}"
+      }
+    },
+    {
+      "name": "Categories - deleted resource is 404",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('returns not found after delete', function () { pm.response.to.have.status(404); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{base_url}}/categories/{{categoryId}}"
+      }
+    },
+    {
+      "name": "Auth - current user requires a token",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "pm.test('protects the current-user route', function () { pm.response.to.have.status(401); });"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Accept",
+            "value": "application/json"
+          }
+        ],
+        "url": "{{root_url}}/api/user"
+      }
+    }
+  ]
+}
