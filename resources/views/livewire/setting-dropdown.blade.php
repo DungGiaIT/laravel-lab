@@ -21,8 +21,9 @@
         },
         setLocale(locale) {
             $wire.setLocale(locale)
-    
-            location.reload()
+                .then(() => {
+                    location.reload();
+                });
         },
         setTheme(targetTheme) {
             $wire.setTheme(targetTheme)
